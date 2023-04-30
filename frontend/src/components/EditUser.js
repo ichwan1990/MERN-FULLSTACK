@@ -1,18 +1,30 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import axios from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 
-const AddUser = () => {
+const EditUser = () => {
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [gender, setGender] = useState("Male");
     const navigate = useNavigate();
+    const { id } = useParams();
 
-    const saveUser = async(e)=>{
+    useEffect(() => {
+        getUserById();
+    }, []);
+
+    const getUserById = async () => {
+        const response = await axios.get(`http://localhost:5000/users/${id}`);
+        setName(response.data.name);
+        setEmail(response.data.email);
+        setGender(response.data.gender);
+    };
+
+    const updateUser = async (e) => {
         e.preventDefault();
         try {
-            await axios.post("http://localhost:5000/users", {
+            await axios.patch(`http://localhost:5000/users/${id}`, {
                 name,
                 email,
                 gender
@@ -26,7 +38,7 @@ const AddUser = () => {
     return (
         <div className="columns">
             <div className="column is-half mt-5">
-                <form onSubmit={saveUser}>
+                <form onSubmit={updateUser}>
                     <div className="field">
                         <label className="label">Name</label>
                         <div className="control">
@@ -65,7 +77,7 @@ const AddUser = () => {
                     </div>
                     <div className="field">
                         <div className="control">
-                            <button type='submit' className='button is-success'>Save</button>
+                            <button type='submit' className='button is-success'>Update</button>
                         </div>
                     </div>
                 </form>
@@ -74,4 +86,4 @@ const AddUser = () => {
     )
 }
 
-export default AddUser
+export default EditUser
